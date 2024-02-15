@@ -1,0 +1,106 @@
+{% extends "network/layout.html" %} {% block body %}
+<div class="row">
+    <div class="d-flex align-items-center">
+        <h1 class="mb-3 me-3">{{ username }}</h1>
+        <h6 class="text-secondary me-3"><span class="badge text-secondary border rounded-pill" style="font-size: 15px;"> {{ followers.count }} </span> Followers</h6>
+        <h6 class="text-secondary"><span class="badge text-secondary border rounded-pill" style="font-size: 15px;"> {{ following.count }} </span> Following</h6>
+    
+    
+        {% if user.is_authenticated %}
+            <div class="ms-auto">
+                {% if user != user_profile %}
+                        {% if isFollowing %}
+                            <form action="{% url "unfollow" %}" method="post">
+                                {% csrf_token %}
+                                <input type="hidden" name="followUser" value={{ user_profile }}>
+                                <input type="submit" class="btn btn-danger rounded-pill" value="Unfollow">
+                            </form>
+                        {% else %}
+                            <form action="{% url "follow" %}" method="post">
+                                {% csrf_token %}
+                                <input type="hidden" name="followUser" value={{ user_profile }}>
+                                <input type="submit" class="btn btn-success rounded-pill" value="Follow">
+                            </form>
+                        {% endif %}
+                {% endif %}
+            </div>
+        {% endif %}
+    </div>
+</div>
+<hr class="line-style">
+
+<div class="mt-3" data-aos="fade-left">
+    {% for post in page_posts %}
+    <div class="card mb-3">
+        <div class="card-body">
+            <blockquote class="blockquote mb-0">
+                <p>{{ post.content }}</p>
+                <a class="text-decoration-none" href="{% url "profile" user_id=post.user.id %}">
+                    <footer class="blockquote-footer">{{ post.user }}</footer>
+                </a>
+            </blockquote>
+            
+            {% if user.is_authenticated and user != post.user %}
+            <button
+                class="btn btn-unstyled {% if post.id in posts_liked %}bi-heart-fill{% else %}bi-heart{% endif %}"
+                style="color: {% if post.id in posts_liked %}red;{% else %}{% endif %}"
+                onclick="likePost({{ post.id }})"
+                id="btn-like-{{ post.id }}"
+                data-liked="{% if post.id in posts_liked %}true{% else %}false{% endif %}"
+            ></button>
+            {% endif %}
+            <span class="text-secondary border rounded-pill justify-content-center">
+                <span id="likes-counter-{{ post.id }}" class="badge text-dark"> {{ post.likes_count }} Likes</span>
+            </span>
+
+            <hr class="line-style">
+
+            <div class="row">
+                <p class="col text-secondary"> Made on {{ post.timestamp }}</p>
+                {% if user.is_authenticated %} {% if user == post.user %}
+                <!-- Button trigger modal -->
+                <div class="col">
+                    <button class="btn btn-dark-subtle rounded-pill float-end" data-bs-toggle="modal" data-bs-target="#modal_edit_post_{{ post.id }}">Edit</button>
+                </div>
+
+                <!-- Modal -->
+                <div class="modal fade" id="modal_edit_post_{{ post.id }}" tabindex="-1" role="dialog" aria-labelledby="modal_edit_post_{{ post.id }}_label" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h1 class="modal-title fs-5" id="modal_edit_post_{{ post.id }}_label">Edit Post</h1>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <form>
+                                    <div class="mb-3">
+                                        <label for="message-text" class="col-form-label">Message:</label>
+                                        <textarea rows="5" id="textarea_{{ post.id }}" class="form-control" name="content">{{ post.content }} </textarea>
+                                    </div>
+                                </form>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary rounded-pill" data-bs-dismiss="modal">Close</button>
+                                <button type="button" class="btn btn-success rounded-pill" data-bs-dismiss="modal" onclick="editPost({{ post.id }})">Edit Post</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endif %} {% endif %}
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+
+    <nav class="my-5" aria-label="Page navigation example">
+        <ul class="pagination justify-content-center">
+            {% if page_posts.has_previous %}
+            <li class="page-item me-3"><a class="page-link bg-dark-subtle rounded-pill text-dark" href="?page={{ page_posts.previous_page_number }}"><strong>❮</strong></a></li>
+            {% endif %} {% if page_posts.has_next %}
+            <li class="page-item me-3"><a class="page-link bg-dark-subtle rounded-pill text-dark" href="?page={{ page_posts.next_page_number }}"><strong>❯</strong></a></li>
+            {% endif %}
+        </ul>
+    </nav>
+</div>
+
+{% endblock %}

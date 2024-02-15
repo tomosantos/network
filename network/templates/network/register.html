@@ -1,0 +1,41 @@
+{% extends "network/layout.html" %} {% block body %}
+
+<div class="text-center p-3">
+    <h2>Register</h2>
+</div>
+
+
+<form action="{% url 'register' %}" method="post" data-aos="fade-up">
+    {% csrf_token %}
+    <!-- Validation -->
+    {% if message %}
+        <p id="validation" class="mb-3 text-center small fw-light text-muted">{{ message }}</p>
+    {% endif %}
+
+    <!-- Username -->
+    <div class="mb-3">
+        <input autocomplete="off" required autofocus class="form-control mx-auto w-25" autofocus type="text" name="username" placeholder="Username" />
+    </div>
+    <!-- Email -->
+    <div class="mb-3">
+        <input autocomplete="off" required class="form-control mx-auto w-25" type="email" name="email" placeholder="Email Address" />
+    </div>
+    <!-- Password -->
+    <div class="mb-3">
+        <input required class="form-control mx-auto w-25" type="password" name="password" placeholder="Password" />
+    </div>
+    <div class="mb-3">
+        <input required class="form-control mx-auto w-25" type="password" name="confirmation" placeholder="Confirm Password" />
+    </div>
+    <!-- Register -->
+    <div class="text-center mb-3">
+        <input class="btn btn-success rounded-pill" type="submit" value="Register" />
+    </div>
+
+    <div class="text-center mt-1">
+        Already have an account? <a style="text-decoration: none;" href="{% url 'login' %}">Log In here.</a>
+    </div>
+</form>
+
+
+{% endblock %}
